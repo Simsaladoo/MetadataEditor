@@ -1,9 +1,11 @@
-import unreal
+import os
+import subprocess
+from editor_menus import menus, qt_helpers
 
 
-# Can launch the window like this now
 '''
-from ayon_halon_unreal.api import UnrealHost
-ayon_host = UnrealHost()
-ayon_host.show_tools_dialog()
+from editor_menus import menus, qt_helpers
+from importlib import reload
+reload(menus)
+reload(qt_helpers)
 '''
