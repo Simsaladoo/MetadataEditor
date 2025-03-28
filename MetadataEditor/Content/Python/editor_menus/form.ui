@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>555</width>
-    <height>92</height>
+    <height>370</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,7 +35,7 @@ border-color: rgb(0, 0, 0);
     <number>0</number>
    </property>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QVBoxLayout" name="verticalLayout_Header">
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_Header">
        <property name="spacing">
@@ -45,11 +45,12 @@ border-color: rgb(0, 0, 0);
         <widget class="QLabel" name="label_hKey">
          <property name="font">
           <font>
+           <family>Segoe UI</family>
            <pointsize>12</pointsize>
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">color: rgb(255, 255, 255);</string>
+          <string notr="true">color: rgb(67, 67, 67);</string>
          </property>
          <property name="text">
           <string>Key</string>
@@ -63,11 +64,12 @@ border-color: rgb(0, 0, 0);
         <widget class="QLabel" name="label_hValue">
          <property name="font">
           <font>
+           <family>Segoe UI</family>
            <pointsize>12</pointsize>
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">color: rgb(255, 255, 255);</string>
+          <string notr="true">color: rgb(67, 67, 67);</string>
          </property>
          <property name="text">
           <string>Value</string>
@@ -82,12 +84,51 @@ border-color: rgb(0, 0, 0);
     </layout>
    </item>
    <item>
+    <widget class="QScrollArea" name="scrollArea_Entries">
+     <property name="styleSheet">
+      <string notr="true">color: rgb(222, 222, 222);</string>
+     </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
+     </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>539</width>
+        <height>289</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(216, 216, 216);
+background-color: rgb(27, 27, 27);</string>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item>
     <widget class="QPushButton" name="pushButton_Save">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>50</height>
+      </size>
      </property>
      <property name="font">
       <font>

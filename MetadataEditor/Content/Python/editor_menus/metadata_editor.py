@@ -10,11 +10,6 @@ reload(metadata_editor)
 metadata_editor.open_window()
 '''
 
-def save_asset():
-    print(f"Saved!")
-    return
-
-
 def get_selected_assets():
     editor_util = unreal.EditorUtilityLibrary()
     selected_assets = editor_util.get_selected_assets()
@@ -23,7 +18,6 @@ def get_selected_assets():
         return []
     asset_paths = [asset.get_path_name() for asset in selected_assets]
     return asset_paths
-
 
 
 def set_metadata_on_asset(asset_path, key, value):
@@ -63,8 +57,19 @@ def open_window():
     MetadataEditorWidget.window.show() # show the window
     MetadataEditorWidget.window.setObjectName('MetadataEditorWidget')  # update this with something unique to your tool
     MetadataEditorWidget.window.setWindowTitle('Metadata Editor')
+    MetadataEditorWidget.window.resize(300,150)
+    path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))) + "/Resources/Icon128.png"
+    MetadataEditorWidget.window.setWindowIcon(QtGui.QIcon(path))
     unreal.parent_external_window_to_slate(MetadataEditorWidget.window.winId(), unreal.SlateParentWindowSearchMethod.MAIN_WINDOW) 
   
+  
+def get_add_row_style():
+    green_button_hover_style = """
+        QPushButton {background-color: rgb(30,55,44);color: white;}
+        QPushButton::hover {background-color: rgb(60,110,88);color: white;}
+        QLabel {color: rgb(30,55,44);color: white;}  
+        """
+    return green_button_hover_style
         
 
 class MetadataEditorWidget(QtWidgets.QWidget):
@@ -74,40 +79,59 @@ class MetadataEditorWidget(QtWidgets.QWidget):
         widgetPath = f'{os.path.dirname(os.path.abspath(__file__))}/form.ui'
         self.ui = QtUiTools.QUiLoader().load(widgetPath)
         layout = QtWidgets.QVBoxLayout(self)
+        layout.setMargin(0)
         self.ui.setLayout(layout)
         self.ui.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
         ## self.ui.setWindowIcon(QtGui.QIcon(f"stroked.png"))
-        layout.setMargin(0)
         layout.addWidget(self.ui)        
         self.init_ui()
         
+
         
     def init_ui(self):
         # self.ui.verticalLayout = self.ui.findChild(QtWidgets.QPushButton, 'verticalLayout')
         self.ui.pushButton_Save = self.ui.findChild(QtWidgets.QPushButton, 'pushButton_Save')
-        self.ui.pushButton_Save.clicked.connect(save_asset)
-        self.scroll_area = QtWidgets.QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
+        self.ui.scrollAreaWidgetContents = self.ui.findChild(QtWidgets.QWidget, 'scrollAreaWidgetContents')
+        self.ui.pushButton_Save.clicked.connect(self.save_asset)
+        self.ui.pushButton_Save.setStyleSheet(get_add_row_style())
         self.inputs = {}
-        
+        inner_widget = self.ui.scrollAreaWidgetContents  # This is the auto-generated QWidget
+        # Set a layout if not already set
+        if not self.ui.scrollAreaWidgetContents.layout():
+            layout = QtWidgets.QVBoxLayout(self.ui.scrollAreaWidgetContents)
+            layout.setMargin(0)
+        else:
+            layout = self.ui.scrollAreaWidgetContents.layout()
 
-        # for key, value in self.data_dict.items():
-        
-        self.add_entry("Test", "Another Value")
-
-        
-         ## Here we need to get all the selecteds
+        ## Here we need to get all the selecteds
         selected = get_selected_assets()
-        existing_tags = get_asset_metadata(get_selected_assets()[0])
-        
+        i = 0
+        for asset in selected:
+            print(f"MetadataEditor: Editing Asset: {asset}")
+            existing_tags = get_asset_metadata(asset)
+            if existing_tags:
+                layout.addWidget(self.add_entry(asset, "Empty", i))
+                layout.adjustSize()
+            i+=1
+            
+        ## Line for a new value
+        ## self.add_entry("", "", i+1)
+        button = QtWidgets.QPushButton(f"+")
+        button.clicked.connect(self.add_new_row)
+        button.setStyleSheet(get_add_row_style())
+        layout.addWidget(button)
 
-        # Box to add into:
-        # verticalLayout
         
-    def add_entry(self, key, value):
-        key_label = QtWidgets.QLabel(key)
-        value_input = QtWidgets.QLineEdit(value)
-        self.inputs[key] = value_input
+    def add_entry(self, key = "None", value = "Empty", index = 0):
+        new_entry_row = QtWidgets.QHBoxLayout(self)
+        new_label = QtWidgets.QLabel(f"Label_{index}")
+        value_input = QtWidgets.QLineEdit(f"Label_{index}") 
+        new_label.setText(f"{key}")
+        new_label.setStyleSheet(get_add_row_style())
+        value_input.setStyleSheet(get_add_row_style())
+        new_entry_row.addWidget(new_label)
+        new_entry_row.addWidget(value_input)
+        return new_entry_row
         
     def add_empty_entry(self):
         new_key = f"Key {len(self.inputs) + 1}"
@@ -117,3 +141,12 @@ class MetadataEditorWidget(QtWidgets.QWidget):
     
     def get_data(self):
         return {key: input_field.text() for key, input_field in self.inputs.items()}
+    
+    def save_asset(self):
+        print(f"Saved!")
+        return
+    
+    def add_new_row(self):
+        self.add_entry("None", "Empty", 0)
+        self.adjustSize()
+        return
