@@ -82,7 +82,6 @@ class MetadataEditorWidget(QtWidgets.QWidget):
         layout.setMargin(0)
         self.ui.setLayout(layout)
         self.ui.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
-        ## self.ui.setWindowIcon(QtGui.QIcon(f"stroked.png"))
         layout.addWidget(self.ui)        
         self.init_ui()
         
