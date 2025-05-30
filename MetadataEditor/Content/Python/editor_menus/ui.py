@@ -22,6 +22,61 @@ def get_add_row_style():
     return green_button_hover_style
 
 
+class MetadataRow(QtWidgets.QWidget):
+    log_debug = QtCore.Signal(str)
+    status_changed = QtCore.Signal(bool)
+    def __init__(self, asset):
+        super(MetadataRow, self).__init__()
+        self.asset = asset
+        layout = QtWidgets.QHBoxLayout(self)
+        layout.setSpacing(0)
+        self.setContentsMargins(0, 0, 0, 0)
+
+        self.label = QtWidgets.QLabel(str(asset).split(".")[-1])
+        self.label.setStyleSheet("color: #ffffff;")
+        self.label.setMargin(4)
+        layout.addWidget(self.label)
+
+        self.key = QtWidgets.QTextEdit("")
+        self.key.setStyleSheet("color: #ffffff;")
+        self.key.textChanged.connect(self.handle_key_changed)
+        layout.addWidget(self.key)
+
+        self.value = QtWidgets.QTextEdit("")
+        self.value.setStyleSheet("color: #ffffff;")
+        self.value.textChanged.connect(self.handle_value_changed)
+        layout.addWidget(self.value)
+
+        self.button_add = QtWidgets.QPushButton("+")
+        self.button_subtract = QtWidgets.QPushButton("-")
+        self.button_add.setFixedWidth(50)
+        self.button_add.setMinimumHeight(20)
+        self.button_add.setStyleSheet("color: #98FB98;")
+        self.button_subtract.setFixedWidth(50)
+        self.button_subtract.setMinimumHeight(20)
+        self.button_subtract.setStyleSheet("color: #FFB3B3;")
+        layout.addWidget(self.button_subtract)
+        layout.addWidget(self.button_add)
+
+        existing_tags = metadata_editor.get_asset_metadata(asset)
+        print(f"{asset}: {existing_tags}")
+        self.setLayout(layout)
+
+    def get_key(self):
+        return self.key.toPlainText()
+
+    def get_value(self):
+        return self.value.toPlainText()
+
+    def handle_key_changed(self):
+        current_text = self.get_key()
+        return current_text
+
+    def handle_value_changed(self):
+        current_text = self.get_value()
+        return current_text
+
+
 class MetadataEditorWidget(QtWidgets.QWidget):
     def __init__(self):
         super(MetadataEditorWidget, self).__init__()
@@ -32,20 +87,23 @@ class MetadataEditorWidget(QtWidgets.QWidget):
         layout.setMargin(0)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
-
+        self.setStyleSheet("background-color: #1d1d1d;")
         self.setObjectName('MetadataEditorWidget')
         self.setWindowTitle('Metadata Editor')
-        self.resize(400,250)
-        self.label = QtWidgets.QLabel("Metadata Editor")
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        layout.addWidget(self.label)
-        self.setLayout(layout)
+        self.resize(500,50)
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
-        layout.addWidget(self)
-        self.init_ui()
+        layout.addWidget(self.ui)
+        self.rows = []
+        self.setLayout(layout)
+        verticalLayout = self.ui.findChild(QtWidgets.QVBoxLayout, 'verticalLayout')
+        self.init_ui(verticalLayout)
+        self.button_save = QtWidgets.QPushButton("Save")
+        self.button_save.setStyleSheet("background-color: #D3D3D3;")
+        self.button_save.setDisabled(True)
+        layout.addWidget(self.button_save)
 
 
-    def init_ui(self):
+    def init_ui(self, verticalLayout):
         selected = metadata_editor.get_selected_assets()
         if not len(selected) > 0:
             return
@@ -54,29 +112,15 @@ class MetadataEditorWidget(QtWidgets.QWidget):
         self.inputs = {}
         selected = metadata_editor.get_selected_assets()
         for asset in selected:
-            print(f"MetadataEditor: Editing Asset: {asset}")
-            existing_tags = metadata_editor.get_asset_metadata(asset)
-            print(f"{asset}: {existing_tags}")
+            row = MetadataRow(asset)
+            row.status_changed.connect(self.on_status_changed)
+            self.rows.append(row)
+            verticalLayout.addWidget(row)
+        new_length = len(selected) * 25 + 25
+        self.resize(500,new_length)
 
 
 
-
-    def add_entry(self, key = "None", value = "Empty", index = 0):
-        new_entry_row = QtWidgets.QHBoxLayout(self)
-        new_label = QtWidgets.QLabel(f"Label_{index}")
-        value_input = QtWidgets.QLineEdit(f"Label_{index}")
-        new_label.setText(f"{key}")
-        new_label.setStyleSheet(get_add_row_style())
-        value_input.setStyleSheet(get_add_row_style())
-        new_entry_row.addWidget(new_label)
-        new_entry_row.addWidget(value_input)
-        return new_entry_row
-
-    def add_empty_entry(self):
-        new_key = f"Key {len(self.inputs) + 1}"
-        self.add_entry(new_key, "")
-        self.layout.adjustSize()
-        self.scroll_area.ensureWidgetVisible(self.inputs[new_key])
 
     def get_data(self):
         return {key: input_field.text() for key, input_field in self.inputs.items()}
@@ -85,10 +129,13 @@ class MetadataEditorWidget(QtWidgets.QWidget):
         print(f"Saved!")
         return
 
-    def add_new_row(self):
-        self.add_entry("None", "Empty", 0)
-        self.adjustSize()
-        return
+
+
+    def on_status_changed(self, status):
+        print(f"Metadata Editor: {status}")
+        self.button_save.setEnabled(True)
+        self.button_save.setStyleSheet("background-color: #98FB98;")
+
 
 app = None
 def open_window():
