@@ -1,6 +1,15 @@
 import unreal
 import subprocess
 
+'''
+from editor_menus import ui, metadata_editor, menus
+from importlib import reload
+reload(ui)
+reload(metadata_editor)
+reload(menus)
+ui.open_window()
+'''
+
 def create_tools_menu():
     menu = unreal.ToolMenus.get().find_menu("ContentBrowser.AssetContextMenu")
     menu.add_section("metadata_editor_id", "Metadata Editor")
@@ -15,7 +24,7 @@ def create_tools_menu():
     new_entry.set_string_command(
         type=unreal.ToolMenuStringCommandType.PYTHON,
         custom_type="",
-        string="from editor_menus import metadata_editor; metadata_editor.open_window()"
+        string="from importlib import reload; from editor_menus import ui; reload(ui); ui.open_window()"
     )
     menu.add_section("metadata_editor_id", "Metadata Editor")
     menu.add_menu_entry("metadata_editor_id", new_entry)
