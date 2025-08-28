@@ -34,6 +34,13 @@ border-color: rgb(0, 0, 0);
    <property name="bottomMargin">
     <number>0</number>
    </property>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+    </layout>
+   </item>
   </layout>
  </widget>
  <resources/>

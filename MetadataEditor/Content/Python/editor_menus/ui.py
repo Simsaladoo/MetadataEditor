@@ -1,5 +1,5 @@
 from PySide2 import QtUiTools, QtWidgets, QtCore, QtGui
-from editor_menus import metadata_editor
+from editor_menus import metadata_editor, styles
 import os
 import sys
 import unreal
@@ -9,17 +9,8 @@ from editor_menus import ui, metadata_editor
 from importlib import reload
 reload(ui)
 reload(metadata_editor)
-metadata_editor.open_window()
+ui.open_window()
 '''
-
-
-def get_add_row_style():
-    green_button_hover_style = """
-        QPushButton {background-color: rgb(30,55,44);color: white;}
-        QPushButton::hover {background-color: rgb(60,110,88);color: white;}
-        QLabel {color: rgb(30,55,44);color: white;}  
-        """
-    return green_button_hover_style
 
 
 class MetadataRow(QtWidgets.QWidget):
@@ -96,7 +87,7 @@ class MetadataEditorWidget(QtWidgets.QWidget):
         self.rows = []
         self.setLayout(layout)
         verticalLayout = self.ui.findChild(QtWidgets.QVBoxLayout, 'verticalLayout')
-        self.init_ui(verticalLayout)
+        self.init_ui(layout)
         self.button_save = QtWidgets.QPushButton("Save")
         self.button_save.setStyleSheet("background-color: #D3D3D3;")
         self.button_save.setDisabled(True)
@@ -107,7 +98,7 @@ class MetadataEditorWidget(QtWidgets.QWidget):
         selected = metadata_editor.get_selected_assets()
         if not len(selected) > 0:
             return
-        path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))) + "/Resources/Icon128.png"
+        path = f"{os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))}/Resources/icon128.png"
         self.ui.setWindowIcon(QtGui.QIcon(path))
         self.inputs = {}
         selected = metadata_editor.get_selected_assets()

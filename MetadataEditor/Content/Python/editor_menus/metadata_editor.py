@@ -7,17 +7,9 @@ from PySide2 import QtWidgets
 from editor_menus import metadata_editor
 from importlib import reload
 reload(metadata_editor)
-metadata_editor.open_window()
 '''
 app = None
 
-def get_add_row_style():
-    green_button_hover_style = """
-        QPushButton {background-color: rgb(30,55,44);color: white;}
-        QPushButton::hover {background-color: rgb(60,110,88);color: white;}
-        QLabel {color: rgb(30,55,44);color: white;}  
-        """
-    return green_button_hover_style
 
 def get_selected_assets():
     editor_util = unreal.EditorUtilityLibrary()
