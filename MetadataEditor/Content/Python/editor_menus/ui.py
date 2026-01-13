@@ -5,67 +5,15 @@ import sys
 import unreal
 
 '''
-from editor_menus import ui, metadata_editor
+from editor_menus import ui, metadata_editor, styles
 from importlib import reload
 reload(ui)
+reload(styles)
 reload(metadata_editor)
 ui.open_window()
 '''
 
 
-class MetadataRow(QtWidgets.QWidget):
-    log_debug = QtCore.Signal(str)
-    status_changed = QtCore.Signal(bool)
-    def __init__(self, asset):
-        super(MetadataRow, self).__init__()
-        self.asset = asset
-        layout = QtWidgets.QHBoxLayout(self)
-        layout.setSpacing(0)
-        self.setContentsMargins(0, 0, 0, 0)
-
-        self.label = QtWidgets.QLabel(str(asset).split(".")[-1])
-        self.label.setStyleSheet("color: #ffffff;")
-        self.label.setMargin(4)
-        layout.addWidget(self.label)
-
-        self.key = QtWidgets.QTextEdit("")
-        self.key.setStyleSheet("color: #ffffff;")
-        self.key.textChanged.connect(self.handle_key_changed)
-        layout.addWidget(self.key)
-
-        self.value = QtWidgets.QTextEdit("")
-        self.value.setStyleSheet("color: #ffffff;")
-        self.value.textChanged.connect(self.handle_value_changed)
-        layout.addWidget(self.value)
-
-        self.button_add = QtWidgets.QPushButton("+")
-        self.button_subtract = QtWidgets.QPushButton("-")
-        self.button_add.setFixedWidth(50)
-        self.button_add.setMinimumHeight(20)
-        self.button_add.setStyleSheet("color: #98FB98;")
-        self.button_subtract.setFixedWidth(50)
-        self.button_subtract.setMinimumHeight(20)
-        self.button_subtract.setStyleSheet("color: #FFB3B3;")
-        layout.addWidget(self.button_subtract)
-        layout.addWidget(self.button_add)
-
-        existing_tags = metadata_editor.get_asset_metadata(asset)
-        print(f"{asset}: {existing_tags}")
-        self.setLayout(layout)
-
-    def get_key(self):
-        return self.key.toPlainText()
-
-    def get_value(self):
-        return self.value.toPlainText()
-
-    def handle_key_changed(self):
-        current_text = self.get_key()
-        return current_text
-
-    def handle_value_changed(self):
-        current_text = self.get_value()
-        return current_text
 
 
 class MetadataEditorWidget(QtWidgets.QWidget):
@@ -74,43 +22,82 @@ class MetadataEditorWidget(QtWidgets.QWidget):
         self.paths = []
         widgetPath = f'{os.path.dirname(os.path.abspath(__file__))}/form.ui'
         self.ui = QtUiTools.QUiLoader().load(widgetPath)
-        layout = QtWidgets.QVBoxLayout(self)
+        window = QtWidgets.QVBoxLayout(self)
+        layout = QtWidgets.QHBoxLayout(self)
+        controls = QtWidgets.QHBoxLayout(self)
+        grid = QtWidgets.QVBoxLayout(self)
+        text = QtWidgets.QVBoxLayout(self)
+        path = f"{os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))}/Resources/icon.ico"
+        print(f"Icon path: {path}")
+        self.ui.setWindowIcon(QtGui.QIcon(path))
         layout.setMargin(0)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
-        self.setStyleSheet("background-color: #1d1d1d;")
+        controls.setMargin(0)
+        controls.setContentsMargins(0, 0, 0, 0)
+        controls.setSpacing(2)
+        self.setStyleSheet(styles.widget_background)
         self.setObjectName('MetadataEditorWidget')
-        self.setWindowTitle('Metadata Editor')
-        self.resize(500,50)
+        self.setWindowTitle('Metadata Bulk Editor')
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowMinimizeButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
-        layout.addWidget(self.ui)
-        self.rows = []
-        self.setLayout(layout)
-        verticalLayout = self.ui.findChild(QtWidgets.QVBoxLayout, 'verticalLayout')
-        self.init_ui(layout)
-        self.button_save = QtWidgets.QPushButton("Save")
-        self.button_save.setStyleSheet("background-color: #D3D3D3;")
-        self.button_save.setDisabled(True)
-        layout.addWidget(self.button_save)
-
-
-    def init_ui(self, verticalLayout):
-        selected = metadata_editor.get_selected_assets()
-        if not len(selected) > 0:
-            return
-        path = f"{os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))}/Resources/icon128.png"
-        self.ui.setWindowIcon(QtGui.QIcon(path))
-        self.inputs = {}
+        window.addWidget(self.ui)
+        layout.addLayout(grid) 
         selected = metadata_editor.get_selected_assets()
         for asset in selected:
-            row = MetadataRow(asset)
-            row.status_changed.connect(self.on_status_changed)
-            self.rows.append(row)
-            verticalLayout.addWidget(row)
-        new_length = len(selected) * 25 + 25
-        self.resize(500,new_length)
+            self.label = QtWidgets.QLabel(str(asset).split(".")[-1])
+            self.label.setStyleSheet(styles.grid_background)
+            self.label.setMargin(6)
+            self.label.setMinimumWidth(250)
+            grid.addWidget(self.label)
+        self.resize(500, len(selected) * 25 + 25)
+        window.addLayout(controls)
+        self.rows = []
+        self.setLayout(window)
+        
+        
+        
+        
+        
+        # These need to be able to be spawned multiple times
+        # Keys
+        self.key_label = QtWidgets.QLabel(" Key: ")
+        self.key_label.setStyleSheet(styles.white_text_style)
+        controls.addWidget(self.key_label)
+        self.key = QtWidgets.QTextEdit("")
+        self.key.setStyleSheet(styles.white_text_style)
+        self.key.setMaximumHeight(35)
+        controls.addWidget(self.key)
 
-
+        # Values
+        self.value_label = QtWidgets.QLabel(" Value: ")
+        self.value_label.setStyleSheet(styles.white_text_style)
+        controls.addWidget(self.value_label)
+        self.value = QtWidgets.QTextEdit("")
+        self.value.setStyleSheet(styles.white_text_style)
+        self.value.setMaximumHeight(35)
+        controls.addWidget(self.value)
+        
+        
+        # Add Row Button
+        self.button_add = QtWidgets.QPushButton("+")
+        self.button_add.setFixedWidth(50)
+        self.button_add.setMinimumHeight(35)
+        self.button_add.setStyleSheet(styles.green_button_hover_style)
+        controls.addWidget(self.button_add)
+        
+        # Clear Row Button
+        self.button_subtract = QtWidgets.QPushButton("-")
+        self.button_subtract.setFixedWidth(50)
+        self.button_subtract.setMinimumHeight(35)
+        self.button_subtract.setStyleSheet(styles.red_button_hover_style)
+        controls.addWidget(self.button_subtract)
+            
+        # Save button
+        self.button_save = QtWidgets.QPushButton("Save")
+        self.button_save.setMinimumHeight(35)
+        self.button_save.setStyleSheet(styles.green_button_hover_style)
+        window.addWidget(self.button_save)
+        
 
 
     def get_data(self):

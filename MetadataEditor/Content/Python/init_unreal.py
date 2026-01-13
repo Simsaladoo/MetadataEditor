@@ -10,7 +10,6 @@ if not os.path.exists(saved_lib_path):
 sys.path.insert(0, saved_lib_path)
 try:
     import qtpy
-    # import qdarkstyle
     print(f"qtpy imported")
 
 except ImportError as e:
