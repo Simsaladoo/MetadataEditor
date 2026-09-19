@@ -1,14 +1,6 @@
 import unreal
 import subprocess
 
-'''
-from editor_menus import ui, metadata_editor, menus
-from importlib import reload
-reload(ui)
-reload(metadata_editor)
-reload(menus)
-ui.open_window()
-'''
 
 def create_tools_menu():
     menu = unreal.ToolMenus.get().find_menu("ContentBrowser.AssetContextMenu")
@@ -41,6 +33,7 @@ def get_unreal_required_packages():
         'matplotlib==3.9.4'
     ]
     return required_packages
+
 
 def import_libs(python = "", libs = []):
     print(f"Importing Libs: {python}")
